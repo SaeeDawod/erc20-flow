@@ -245,7 +245,7 @@
         "type": "function",
         "z": "29d033f92e97afbf",
         "name": "Mint token",
-        "func": "const erc20Contract = global.get(\"erc20Contract\");\n\nconst tx = await erc20Contract.mint(msg.toAddress, ethers.utils.parseUnits(msg.amount.toString(), 18));\nawait tx.wait();\n\nmsg.payload = tx.hash\n\nreturn msg ",
+        "func": "const erc20Contract = global.get(\"erc20Contract\");\n\nconst tx = await erc20Contract.mint(msg.toAddress, ethers.utils.parseUnits(msg.amount.toString(), 18));\nawait tx.wait();\n\nmsg.payload = tx.hash\n\nreturn msg \n\n\n",
         "outputs": 1,
         "timeout": "",
         "noerr": 0,
@@ -310,6 +310,71 @@
         "statusType": "auto",
         "x": 580,
         "y": 520,
+        "wires": []
+    },
+    {
+        "id": "bac9afc56d923a30",
+        "type": "function",
+        "z": "29d033f92e97afbf",
+        "name": "get all balances from GMW",
+        "func": "async function queryERC20Balances() {\n    const graphqlEndpoint = 'https://gmw-erc20-8687.eks-singapore.settlemint.com/subgraphs/name/erc20-scs-b0f4';\n    const query = `\n        query MyQuery {\n            erc20Balances {\n                value\n                valueExact\n                id\n            }\n        }\n    `;\n\n    // Setting up the request headers and body\n    const options = {\n        method: 'POST',\n        headers: {\n            'Content-Type': 'application/json',\n            'x-auth-token': 'sm_pat_383caed3f7f85b0e'\n        },\n        body: JSON.stringify({ query })\n    };\n\n    try {\n        const response = await fetch(graphqlEndpoint, options);\n        const responseBody = await response.json();\n        if (!response.ok) {\n            throw new Error('GraphQL query failed');\n        }\n        return responseBody.data;\n    } catch (error) {\n        console.error('Error fetching ERC20 balances:', error);\n        throw error; // Rethrowing the error might be useful if you want to handle it further up the call stack\n    }\n}\n\n// Example usage\nmsg.payload = await queryERC20Balances()\n\nreturn msg \n\n",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [
+            {
+                "var": "ethers",
+                "module": "ethers"
+            },
+            {
+                "var": "fetch",
+                "module": "node-fetch"
+            }
+        ],
+        "x": 380,
+        "y": 660,
+        "wires": [
+            [
+                "5554843d88061c33"
+            ]
+        ]
+    },
+    {
+        "id": "87fdf89aa550502c",
+        "type": "inject",
+        "z": "29d033f92e97afbf",
+        "name": "Get all balanceses ",
+        "props": [],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 130,
+        "y": 660,
+        "wires": [
+            [
+                "bac9afc56d923a30"
+            ]
+        ]
+    },
+    {
+        "id": "5554843d88061c33",
+        "type": "debug",
+        "z": "29d033f92e97afbf",
+        "name": "ERC 20 Balance",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 640,
+        "y": 660,
         "wires": []
     }
 ]
