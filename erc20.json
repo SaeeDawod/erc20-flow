@@ -1,0 +1,315 @@
+[
+    {
+        "id": "29d033f92e97afbf",
+        "type": "tab",
+        "label": "Flow 2",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "ab2e9267aff2e3e0",
+        "type": "function",
+        "z": "29d033f92e97afbf",
+        "name": "Connect to blockchain",
+        "func": "const abi = [\n    // ERC20 functions\n    \"function balanceOf(address account) public view returns (uint256)\",\n    \"function totalSupply() public view returns (uint256)\",\n    \"function transfer(address to, uint256 amount) public returns (bool)\",\n    \"function allowance(address owner, address spender) public view returns (uint256)\",\n    \"function approve(address spender, uint256 amount) public returns (bool)\",\n    \"function transferFrom(address from, address to, uint256 amount) public returns (bool)\",\n    // ERC20 events\n    \"event Transfer(address indexed from, address indexed to, uint256 value)\",\n    \"event Approval(address indexed owner, address indexed spender, uint256 value)\",\n    // ERC20Burnable functions\n    \"function burn(uint256 amount) public\",\n    \"function burnFrom(address account, uint256 amount) public\",\n    // Pausable functions\n    \"function pause() public\",\n    \"function unpause() public\",\n    // Pausable events\n    \"event Paused(address account)\",\n    \"event Unpaused(address account)\",\n    // AccessControl functions\n    \"function grantRole(bytes32 role, address account) public\",\n    \"function revokeRole(bytes32 role, address account) public\",\n    \"function renounceRole(bytes32 role, address account) public\",\n    \"function hasRole(bytes32 role, address account) public view returns (bool)\",\n    // AccessControl events\n    \"event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender)\",\n    \"event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender)\",\n    \"event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)\",\n    // Mint function\n    \"function mint(address to, uint256 amount) public\",\n];\n\n//connecting to Blockchain\nconst provider = new ethers.providers.JsonRpcProvider('https://besu-node-1-d5f7.gke-europe.settlemint.com/sm_pat_383caed3f7f85b0e');\n//connecting to our Wallet (Private key)\nconst signer = new ethers.Wallet('0xcfb7350892931fe8a912631ece54a56768bf5a60a5e339f82eb6402888f351b4', provider);\nglobal.set('signer', signer)\n\n//connecting to the contract \nconst erc20Contract = new ethers.Contract('0xc1Ac4C07A8348954A05C893E9CE6f4Ca593e7Dd4', abi, signer);\nglobal.set('erc20Contract', erc20Contract)\n\n//interacting with the Blockchain\nmsg.block = await provider.getBlock()\n//interacting with the contract \nmsg.erc20Contract = erc20Contract.address\n\nreturn msg ",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [
+            {
+                "var": "ethers",
+                "module": "ethers"
+            }
+        ],
+        "x": 380,
+        "y": 80,
+        "wires": [
+            [
+                "6a33daf1fc575b0e",
+                "267f4b0d98c3250c"
+            ]
+        ]
+    },
+    {
+        "id": "e10b870146b6fc7c",
+        "type": "inject",
+        "z": "29d033f92e97afbf",
+        "name": "Set global vars",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 140,
+        "y": 80,
+        "wires": [
+            [
+                "ab2e9267aff2e3e0"
+            ]
+        ]
+    },
+    {
+        "id": "6a33daf1fc575b0e",
+        "type": "debug",
+        "z": "29d033f92e97afbf",
+        "name": "block",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "block",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 610,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "267f4b0d98c3250c",
+        "type": "debug",
+        "z": "29d033f92e97afbf",
+        "name": "contract address ",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "erc20Contract",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 650,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "c187ec09f48ac08f",
+        "type": "function",
+        "z": "29d033f92e97afbf",
+        "name": "Send native currency txn ",
+        "func": "const signer = global.get(\"signer\");\n\nconst tx = await signer.sendTransaction({\n    to: msg.toAddress,\n    value: ethers.utils.parseEther(msg.amount.toString())\n});\n\nawait tx.wait();\n\nmsg.payload = `Sent ${msg.amount} native currency to address ${msg.toAddress}, the TXN hash is ${ await tx.hash }`\n\nreturn msg\n\n",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [
+            {
+                "var": "ethers",
+                "module": "ethers"
+            }
+        ],
+        "x": 390,
+        "y": 260,
+        "wires": [
+            [
+                "ddc2718115cb878a"
+            ]
+        ]
+    },
+    {
+        "id": "970e6fba43679067",
+        "type": "inject",
+        "z": "29d033f92e97afbf",
+        "name": "Trigger txn",
+        "props": [
+            {
+                "p": "toAddress",
+                "v": "0xE0b91CEad6bE1Dd9b756D2c6c1dA409CB9FCA8D1",
+                "vt": "str"
+            },
+            {
+                "p": "amount",
+                "v": "10",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 120,
+        "y": 260,
+        "wires": [
+            [
+                "c187ec09f48ac08f"
+            ]
+        ]
+    },
+    {
+        "id": "ddc2718115cb878a",
+        "type": "debug",
+        "z": "29d033f92e97afbf",
+        "name": "native currency ",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 640,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "923ea30aee23d14c",
+        "type": "function",
+        "z": "29d033f92e97afbf",
+        "name": "Get address ERC20 balance",
+        "func": "const erc20Contract = global.get(\"erc20Contract\")\n\nconst balance = await erc20Contract.balanceOf(msg.toAddress);\nmsg.payload = `Balance of address ${msg.toAddress} is: ${ethers.utils.formatEther(balance)} tokens`\n\nreturn msg;\n\n",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [
+            {
+                "var": "ethers",
+                "module": "ethers"
+            }
+        ],
+        "x": 400,
+        "y": 400,
+        "wires": [
+            [
+                "893638feba26b5e7"
+            ]
+        ]
+    },
+    {
+        "id": "85d7ac6209865ec8",
+        "type": "inject",
+        "z": "29d033f92e97afbf",
+        "name": "Trigger txn",
+        "props": [
+            {
+                "p": "toAddress",
+                "v": "0xE0b91CEad6bE1Dd9b756D2c6c1dA409CB9FCA8D1",
+                "vt": "str"
+            },
+            {
+                "p": "amount",
+                "v": "10",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 120,
+        "y": 400,
+        "wires": [
+            [
+                "923ea30aee23d14c"
+            ]
+        ]
+    },
+    {
+        "id": "893638feba26b5e7",
+        "type": "debug",
+        "z": "29d033f92e97afbf",
+        "name": "ERC 20 Balance",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 660,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "25ba1385d993ab0e",
+        "type": "function",
+        "z": "29d033f92e97afbf",
+        "name": "Mint token",
+        "func": "const erc20Contract = global.get(\"erc20Contract\");\n\nconst tx = await erc20Contract.mint(msg.toAddress, ethers.utils.parseUnits(msg.amount.toString(), 18));\nawait tx.wait();\n\nmsg.payload = tx.hash\n\nreturn msg ",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [
+            {
+                "var": "ethers",
+                "module": "ethers"
+            }
+        ],
+        "x": 350,
+        "y": 520,
+        "wires": [
+            [
+                "df5a19b1622d8286"
+            ]
+        ]
+    },
+    {
+        "id": "922724962a77d794",
+        "type": "inject",
+        "z": "29d033f92e97afbf",
+        "name": "Trigger mint",
+        "props": [
+            {
+                "p": "toAddress",
+                "v": "0xE0b91CEad6bE1Dd9b756D2c6c1dA409CB9FCA8D1",
+                "vt": "str"
+            },
+            {
+                "p": "amount",
+                "v": "10",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 130,
+        "y": 520,
+        "wires": [
+            [
+                "25ba1385d993ab0e"
+            ]
+        ]
+    },
+    {
+        "id": "df5a19b1622d8286",
+        "type": "debug",
+        "z": "29d033f92e97afbf",
+        "name": "txn hash",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 580,
+        "y": 520,
+        "wires": []
+    }
+]
