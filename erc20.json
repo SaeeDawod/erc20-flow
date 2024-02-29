@@ -12,7 +12,7 @@
         "type": "function",
         "z": "29d033f92e97afbf",
         "name": "Connect to blockchain",
-        "func": "const abi = [\n    // ERC20 functions\n    \"function balanceOf(address account) public view returns (uint256)\",\n    \"function totalSupply() public view returns (uint256)\",\n    \"function transfer(address to, uint256 amount) public returns (bool)\",\n    \"function allowance(address owner, address spender) public view returns (uint256)\",\n    \"function approve(address spender, uint256 amount) public returns (bool)\",\n    \"function transferFrom(address from, address to, uint256 amount) public returns (bool)\",\n    // ERC20 events\n    \"event Transfer(address indexed from, address indexed to, uint256 value)\",\n    \"event Approval(address indexed owner, address indexed spender, uint256 value)\",\n    // ERC20Burnable functions\n    \"function burn(uint256 amount) public\",\n    \"function burnFrom(address account, uint256 amount) public\",\n    // Pausable functions\n    \"function pause() public\",\n    \"function unpause() public\",\n    // Pausable events\n    \"event Paused(address account)\",\n    \"event Unpaused(address account)\",\n    // AccessControl functions\n    \"function grantRole(bytes32 role, address account) public\",\n    \"function revokeRole(bytes32 role, address account) public\",\n    \"function renounceRole(bytes32 role, address account) public\",\n    \"function hasRole(bytes32 role, address account) public view returns (bool)\",\n    // AccessControl events\n    \"event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender)\",\n    \"event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender)\",\n    \"event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)\",\n    // Mint function\n    \"function mint(address to, uint256 amount) public\",\n];\n\n//connecting to Blockchain\nconst provider = new ethers.providers.JsonRpcProvider('https://besu-node-1-d5f7.gke-europe.settlemint.com/sm_pat_383caed3f7f85b0e');\n//connecting to our Wallet (Private key)\nconst signer = new ethers.Wallet('0xcfb7350892931fe8a912631ece54a56768bf5a60a5e339f82eb6402888f351b4', provider);\nglobal.set('signer', signer)\n\n//connecting to the contract \nconst erc20Contract = new ethers.Contract('0xc1Ac4C07A8348954A05C893E9CE6f4Ca593e7Dd4', abi, signer);\nglobal.set('erc20Contract', erc20Contract)\n\n//interacting with the Blockchain\nmsg.block = await provider.getBlock()\n//interacting with the contract \nmsg.erc20Contract = erc20Contract.address\n\nreturn msg ",
+        "func": "const abi = [\n    // ERC20 functions\n    \"function balanceOf(address account) public view returns (uint256)\",\n    \"function totalSupply() public view returns (uint256)\",\n    \"function transfer(address to, uint256 amount) public returns (bool)\",\n    \"function allowance(address owner, address spender) public view returns (uint256)\",\n    \"function approve(address spender, uint256 amount) public returns (bool)\",\n    \"function transferFrom(address from, address to, uint256 amount) public returns (bool)\",\n    // ERC20 events\n    \"event Transfer(address indexed from, address indexed to, uint256 value)\",\n    \"event Approval(address indexed owner, address indexed spender, uint256 value)\",\n    // ERC20Burnable functions\n    \"function burn(uint256 amount) public\",\n    \"function burnFrom(address account, uint256 amount) public\",\n    // Pausable functions\n    \"function pause() public\",\n    \"function unpause() public\",\n    // Pausable events\n    \"event Paused(address account)\",\n    \"event Unpaused(address account)\",\n    // AccessControl functions\n    \"function grantRole(bytes32 role, address account) public\",\n    \"function revokeRole(bytes32 role, address account) public\",\n    \"function renounceRole(bytes32 role, address account) public\",\n    \"function hasRole(bytes32 role, address account) public view returns (bool)\",\n    // AccessControl events\n    \"event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender)\",\n    \"event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender)\",\n    \"event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)\",\n    // Mint function\n    \"function mint(address to, uint256 amount) public\",\n];\n\n//connecting to Blockchain\nconst provider = new ethers.providers.JsonRpcProvider('https://my-node-1c0a.gke-europe.settlemint.com/sm_pat_15d761631b6b85b5');\n//connecting to our Wallet (Private key)\nconst signer = new ethers.Wallet('0x148b7807e94821148e345a3dc45a84bc7b5a128761ad3e7e32404ac5e2c8e8e0', provider);\nglobal.set('signer', signer)\n\n//connecting to the contract \nconst erc20Contract = new ethers.Contract('0x8B000652fB913A36dbfc611B5Bc5b0B3aecB0d52', abi, signer);\nglobal.set('erc20Contract', erc20Contract)\n\n//interacting with the Blockchain\nmsg.block = await provider.getBlock()\n//interacting with the contract \nmsg.erc20Contract = erc20Contract.address\n\nreturn msg ",
         "outputs": 1,
         "timeout": "",
         "noerr": 0,
@@ -97,78 +97,6 @@
         "wires": []
     },
     {
-        "id": "c187ec09f48ac08f",
-        "type": "function",
-        "z": "29d033f92e97afbf",
-        "name": "Send native currency txn ",
-        "func": "const signer = global.get(\"signer\");\n\nconst tx = await signer.sendTransaction({\n    to: msg.toAddress,\n    value: ethers.utils.parseEther(msg.amount.toString())\n});\n\nawait tx.wait();\n\nmsg.payload = `Sent ${msg.amount} native currency to address ${msg.toAddress}, the TXN hash is ${ await tx.hash }`\n\nreturn msg\n\n",
-        "outputs": 1,
-        "timeout": "",
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [
-            {
-                "var": "ethers",
-                "module": "ethers"
-            }
-        ],
-        "x": 390,
-        "y": 260,
-        "wires": [
-            [
-                "ddc2718115cb878a"
-            ]
-        ]
-    },
-    {
-        "id": "970e6fba43679067",
-        "type": "inject",
-        "z": "29d033f92e97afbf",
-        "name": "Trigger txn",
-        "props": [
-            {
-                "p": "toAddress",
-                "v": "0xE0b91CEad6bE1Dd9b756D2c6c1dA409CB9FCA8D1",
-                "vt": "str"
-            },
-            {
-                "p": "amount",
-                "v": "10",
-                "vt": "str"
-            }
-        ],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "x": 120,
-        "y": 260,
-        "wires": [
-            [
-                "c187ec09f48ac08f"
-            ]
-        ]
-    },
-    {
-        "id": "ddc2718115cb878a",
-        "type": "debug",
-        "z": "29d033f92e97afbf",
-        "name": "native currency ",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 640,
-        "y": 260,
-        "wires": []
-    },
-    {
         "id": "923ea30aee23d14c",
         "type": "function",
         "z": "29d033f92e97afbf",
@@ -201,7 +129,7 @@
         "props": [
             {
                 "p": "toAddress",
-                "v": "0xE0b91CEad6bE1Dd9b756D2c6c1dA409CB9FCA8D1",
+                "v": "0x9aC05822830F80Beb5BF486366a9176127E8E50c",
                 "vt": "str"
             },
             {
@@ -245,7 +173,7 @@
         "type": "function",
         "z": "29d033f92e97afbf",
         "name": "Mint token",
-        "func": "const erc20Contract = global.get(\"erc20Contract\");\n\nconst tx = await erc20Contract.mint(msg.toAddress, ethers.utils.parseUnits(msg.amount.toString(), 18));\nawait tx.wait();\n\nmsg.payload = tx.hash\n\nreturn msg \n\n\n",
+        "func": "const erc20Contract = global.get(\"erc20Contract\");\n\nconst txOptions = {\n    gasLimit: 1000000, // Example gas limit; adjust based on the actual usage of the mint function\n    gasPrice: 0, // Set gas price to 0 for networks that support this\n};\n\nconst tx = await erc20Contract.mint(msg.toAddress, ethers.utils.parseUnits(msg.amount.toString(), 18), txOptions);\nawait tx.wait();\n\nmsg.payload = tx.hash\n\nreturn msg \n\n\n",
         "outputs": 1,
         "timeout": "",
         "noerr": 0,
